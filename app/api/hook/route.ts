@@ -1931,49 +1931,38 @@ export async function POST(req:NextRequest) {
   const transferLog = decodeERC20Transfers(data.transaction.logs)
   console.log("received transfers:",transferLog);
 
-  
 
-  //wallet=  wallet.connect(new ethers.providers.JsonRpcProvider(process.env.PROVIDER))
-  //console.log("loaded wallet:",await wallet.getAddress(), "balance:", await wallet.getBalance());
-
+  //Note: thirdweb with oz relay is TOO slow for vercel, we need to use raw txs instead 
   // const sdk =ThirdwebSDK.fromSigner(tWallet,process.env.CHAIN as string, {   
   //   secretKey:process.env.THIRD_WEB_SECRET as string,
   // });
-
   // const contract  = await sdk.getContract(process.env.ERC1155_CONTRACT_ADDRESS as string, ABI);
-  
-  //console.log("loaded contract:",await contract.getAddress());
-  // Address of the wallet you want to send the NFT to
   
   const toAddress = transferLog[0].from
   let tokenId=0;
-  if (transferLog[0].value.gt(BigNumber.from(50000))){
+  const minAmountWei = ethers.utils.parseUnits(process.env.MIN_AMOUNT_ETH as string,"ether")
+  if (transferLog[0].value.gt(BigNumber.from(minAmountWei))){
     tokenId=1;
   }// The token ID of the NFT you want to send
   const amount = 1; // How many copies of the NFTs to transfer
   
-  console.log("sending nft to:",toAddress);
-  let pTx;
-  try {
-    //  tx = await contract.erc1155.transfer.prepare(toAddress, tokenId, amount);
-     console.log("populating Tx:");
-     const c = new ethers.Contract(process.env.ERC1155_CONTRACT_ADDRESS as string, ABI)
-     pTx =  await c.populateTransaction.safeTransferFrom("0x6B2bc7a4e217549936AE28B9121eE6e06A207381", toAddress, tokenId, amount, "0x")
-  }catch(e){
-    console.error(e);
-    return NextResponse.json(e);
-  }
-  pTx = {
+  console.log("sending nft to:",toAddress)
+  
+  console.log("populating Tx:");
+  const c = new ethers.Contract(process.env.ERC1155_CONTRACT_ADDRESS as string, ABI)
+  let pTx = await c.populateTransaction.safeTransferFrom("0x6B2bc7a4e217549936AE28B9121eE6e06A207381", toAddress, tokenId, amount, "0x")   
+  const rTx = {
     to:pTx.to as string,
     data: pTx.data as string,
     value:"0x00",
     speed: 'fastest',
     gasLimit: 500000,
   } as RelayerTransactionPayload
-  console.log("sending to oz");
-  console.log(pTx);
-  const r = await relayer.sendTransaction(pTx)
-  //console.log(tx)
 
-  return NextResponse.json(r)
+  console.log("sending populated tx to oz for signing:",pTx)
+  //Note: this is faster because all we do is wait for the relayer to sign!
+  const r = await relayer.sendTransaction(rTx)
+  console.log("receipt from oz:",rTx)
+
+  return NextResponse.json({})
 }
