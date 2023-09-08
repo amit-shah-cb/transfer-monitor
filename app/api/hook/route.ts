@@ -33,7 +33,7 @@ export async function POST(req:NextRequest) {
 }
 */
   const data = await req.json()
-  console.log(JSON.stringify(data));
+  console.log(JSON.stringify(data.transaction.logs));
   return NextResponse.json({});
 
   // let wallet = (ethers.Wallet.fromMnemonic(process.env.MNEMONIC as string));
