@@ -7,6 +7,8 @@ import { Relayer } from '@openzeppelin/defender-relay-client';
 import { DefenderRelayProvider, DefenderRelaySigner } from '@openzeppelin/defender-relay-client/lib/ethers';
 import { Lambda } from 'aws-sdk';
 
+export const runtime = 'edge';
+
 const credentials = { apiKey: process.env.DEFENDER_API_KEY as string, apiSecret: process.env.DEFENDER_API_SECRET as string }
 const relayer = new Relayer(credentials);
 interface Log {
@@ -1884,6 +1886,8 @@ const ABI= `
 ]
 `
 
+const c = new ethers.Contract(process.env.ERC1155_CONTRACT_ADDRESS as string, ABI)
+
 function decodeERC20Transfers(logs: Log[]): TransferLog[] {
   const iface = new ethers.utils.Interface([
     'event Transfer(address indexed from, address indexed to, uint256 value)',
@@ -1945,11 +1949,9 @@ export async function POST(req:NextRequest) {
     tokenId=1;
   }// The token ID of the NFT you want to send
   const amount = 1; // How many copies of the NFTs to transfer
-  
   console.log("sending nft to:",toAddress)
   
   console.log("populating Tx:");
-  const c = new ethers.Contract(process.env.ERC1155_CONTRACT_ADDRESS as string, ABI)
   let pTx = await c.populateTransaction.safeTransferFrom("0x6B2bc7a4e217549936AE28B9121eE6e06A207381", toAddress, tokenId, amount, "0x")   
   const rTx = {
     to:pTx.to as string,
