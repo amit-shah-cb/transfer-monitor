@@ -2,10 +2,10 @@ import { NextResponse,NextRequest } from 'next/server'
 import { BigNumber, ethers } from 'ethers';
 import { Relayer, RelayerTransactionPayload } from '@openzeppelin/defender-relay-client';
 
-export const runtime = 'edge';
+export const config = {
+  runtime: 'edge',
+};
 
-const credentials = { apiKey: process.env.DEFENDER_API_KEY as string, apiSecret: process.env.DEFENDER_API_SECRET as string }
-const relayer = new Relayer(credentials);
 interface Log {
   address: string;
   topics: string[];
@@ -1925,6 +1925,9 @@ export async function POST(req:NextRequest) {
   }
 }
 */
+  const credentials = { apiKey: process.env.DEFENDER_API_KEY as string, apiSecret: process.env.DEFENDER_API_SECRET as string }
+
+  const relayer = new Relayer(credentials);
 
   const data = await req.json()
   const transferLog = decodeERC20Transfers(data.transaction.logs)
