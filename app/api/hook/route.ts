@@ -2,9 +2,7 @@ import { NextResponse,NextRequest } from 'next/server'
 import { BigNumber, ethers } from 'ethers';
 import { Relayer, RelayerTransactionPayload } from '@openzeppelin/defender-relay-client';
 
-export const config = {
-  runtime: 'edge',
-};
+export const runtime = 'edge'
 
 interface Log {
   address: string;
