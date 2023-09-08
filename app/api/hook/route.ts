@@ -1,11 +1,6 @@
 import { NextResponse,NextRequest } from 'next/server'
-import { SmartContract, ThirdwebSDK} from "@thirdweb-dev/sdk";
-import { EthersWallet } from "@thirdweb-dev/wallets";
 import { BigNumber, ethers } from 'ethers';
-import { RelayClient, RelayerTransactionPayload } from '@openzeppelin/defender-relay-client';
-import { Relayer } from '@openzeppelin/defender-relay-client';
-import { DefenderRelayProvider, DefenderRelaySigner } from '@openzeppelin/defender-relay-client/lib/ethers';
-import { Lambda } from 'aws-sdk';
+import { Relayer, RelayerTransactionPayload } from '@openzeppelin/defender-relay-client';
 
 export const runtime = 'edge';
 
