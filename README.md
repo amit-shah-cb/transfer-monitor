@@ -44,7 +44,8 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
     1. setup Edition Drop
     2. Create NFTs for collection
     3. Set Claim only by owner
-    4. Claim N copies to Relay Address of each NFT you want to distribute
+    4. Claim N copies to Minter Address of each NFT you want to distribute
+    5. setApprovalForAll(operator,true) where operator == relay address
 3. Setup Vercel Project
 4. Setup tenderly 
     1. Create erc20 transfer alert on address of interest as to address and ERC20 contract address

@@ -1950,7 +1950,7 @@ export async function POST(req:NextRequest) {
   
   console.log("populating Tx:");
   const c = new ethers.Contract(process.env.ERC1155_CONTRACT_ADDRESS as string, ABI)
-  let pTx = await c.populateTransaction.safeTransferFrom("0x6B2bc7a4e217549936AE28B9121eE6e06A207381", toAddress, tokenId, amount, "0x")   
+  let pTx = await c.populateTransaction.safeTransferFrom(process.env.NFT_MINTER as string, toAddress, tokenId, amount, "0x")   
   const rTx = {
     to:pTx.to as string,
     data: pTx.data as string,
