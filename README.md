@@ -51,6 +51,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
     2. Set the web hook to the vercel domain and hook endpoint
 
 Integration Gotchas
+-have to import { Lambda } from 'aws-sdk'; because of lazy build on nextjs !! its a workaround to work with oz defender
 -had to deploy my own ERC20 bc there is no faucet on base ... 
 -cannot set claimable easily ! Have to have the wallet connectable so can easily use oz defender on our won
 -using OZ defender with Thirdweb SDK results in huge latency which times out vercel server less (> 10sec) 
@@ -60,3 +61,13 @@ Integration Gotchas
 	-call ethers populate transaction
 	-use defender relay to relay.sendTransaction
 		-this is the correct way as the sendTransaction only waits for relayer to sign, not tx to be mined
+
+
+Some On Chain Things:
+
+https://testnets.opensea.io/collection/fordummy
+Test Collection: https://goerli.basescan.org/address/0x86e90dce3dc3e201546bd4e5f5ae2b7c28c9a080
+Dummy Token: https://goerli.basescan.org/address/0xcb0b29999f1ec513992509625ff69655f667330a
+Relayer: 0x6b2bc7a4e217549936ae28b9121ee6e06a207381
+
+
