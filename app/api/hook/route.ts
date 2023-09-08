@@ -2,7 +2,14 @@ import { NextResponse,NextRequest } from 'next/server'
 import { SmartContract, ThirdwebSDK} from "@thirdweb-dev/sdk";
 import { EthersWallet } from "@thirdweb-dev/wallets";
 import { BigNumber, ethers } from 'ethers';
+import { RelayClient } from '@openzeppelin/defender-relay-client';
+import { Relayer } from '@openzeppelin/defender-relay-client';
+import { DefenderRelayProvider, DefenderRelaySigner } from '@openzeppelin/defender-relay-client/lib/ethers';
+import { Lambda } from 'aws-sdk';
 
+const credentials = { apiKey: process.env.DEFENDER_API_KEY as string, apiSecret: process.env.DEFENDER_API_SECRET as string }
+const provider = new DefenderRelayProvider(credentials);
+const signer = new DefenderRelaySigner(credentials, provider, { speed: 'fast' });
 
 interface Log {
   address: string;
@@ -63,18 +70,20 @@ export async function POST(req:NextRequest) {
   const transferLog = decodeERC20Transfers(data.transaction.logs)
   console.log("received transfers:",transferLog);
 
-  let wallet = (ethers.Wallet.fromMnemonic(process.env.MNEMONIC as string));
-  wallet=  wallet.connect(new ethers.providers.JsonRpcProvider(process.env.PROVIDER))
-  console.log("loaded wallet:",await wallet.getAddress(), "balance:", await wallet.getBalance());
+  
+
+  let wallet = new EthersWallet(signer);//ethers.Wallet.fromMnemonic(process.env.MNEMONIC as string));
+  //wallet=  wallet.connect(new ethers.providers.JsonRpcProvider(process.env.PROVIDER))
+  //console.log("loaded wallet:",await wallet.getAddress(), "balance:", await wallet.getBalance());
 
  
-  const sdk = ThirdwebSDK.fromSigner(wallet, process.env.CHAIN as string, {   
+  const sdk =await ThirdwebSDK.fromWallet(wallet, process.env.CHAIN as string, {   
     secretKey:process.env.THIRD_WEB_SECRET as string,
   });
 
   const contract  = await sdk.getContract(process.env.ERC1155_CONTRACT_ADDRESS as string);
-
-  console.log("loaded contract:",await contract.getAddress());
+  
+  //console.log("loaded contract:",await contract.getAddress());
   // Address of the wallet you want to send the NFT to
   
   const toAddress = transferLog[0].from
@@ -84,9 +93,10 @@ export async function POST(req:NextRequest) {
   }// The token ID of the NFT you want to send
   const amount = 1; // How many copies of the NFTs to transfer
 
- 
-  const tx = await contract.erc1155.claimTo(toAddress, tokenId, amount);
-  console.log(tx)
+  console.log("sending nft to:",toAddress);
+  
+  const tx = await contract.erc1155.transfer(toAddress, tokenId, amount);
+  //console.log(tx)
 
   return NextResponse.json(tx)
 }
